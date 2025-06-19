@@ -1,0 +1,121 @@
+/* =================================
+   ESTRUTURA E NAVEGAÇÃO
+   ================================= */
+body {
+    background-color: #f0f2f5;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+}
+
+.app-container {
+    max-width: 600px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background-color: #fff;
+    position: relative;
+    padding-bottom: 90px;
+}
+
+/* Lógica para mostrar/esconder telas */
+.screen-nav {
+    display: none;
+}
+
+.screen {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+#nav-dashboard:checked ~ .app-container .dashboard,
+#nav-add:checked ~ .app-container .add-expense {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =================================
+   BARRA DE NAVEGAÇÃO CUSTOMIZADA
+   ================================= */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-width: 600px;
+    margin: 0 auto;
+    height: 70px;
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #6c757d; /* Cor 'text-secondary' do Bootstrap */
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.nav-label {
+    font-size: 0.75rem; /* 12px */
+}
+
+/* Botão de Adicionar centralizado e "flutuante" */
+.nav-item.add-button {
+    background-color: var(--bs-success); /* Cor 'bg-success' do Bootstrap */
+    color: #fff;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    margin-top: -30px;
+    border: 4px solid #fff;
+    font-size: 1.75rem; /* 28px */
+    justify-content: center;
+}
+
+/* Cor do ícone ativo */
+#nav-dashboard:checked ~ .bottom-nav .nav-item:first-of-type,
+#nav-dashboard:checked ~ .bottom-nav .nav-item:last-of-type {
+    color: var(--bs-success);
+}
+
+
+/* =================================
+   PEQUENOS AJUSTES VISUAIS
+   ================================= */
+.icon-bg {
+    width: 45px;
+    height: 45px;
+    background-color: #f0f2f5;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* Estilo para categorias com Botão de Rádio do Bootstrap */
+.btn-check:checked + .btn {
+    background-color: var(--bs-success);
+    color: #fff;
+    border-color: var(--bs-success);
+}
+.btn-check + .btn-light {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+.btn-check + .btn-light span {
+    margin-top: 0.25rem;
+}
