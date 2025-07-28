@@ -8,11 +8,19 @@
 </head>
 <body>
     <div class="container">
+        <div id="profile" class="profile">
+            <h2 id="username"></h2>
+            <p>Nível: <span id="level"></span></p>
+            <h3>Meus Hobbies:</h3>
+            <ul id="hobby-list"></ul>
+        </div>
         <h1>Questionário de Hobbies</h1>
         <div id="questionnaire"></div>
         <button id="submit-btn">Ver Sugestão</button>
         <div id="suggestion"></div>
     </div>
+    <script src="https://unpkg.com/ml-knn@3.0.0/dist/knn.js"></script>
+    <script src="hobbies.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

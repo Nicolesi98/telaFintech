@@ -4,19 +4,35 @@ const suggestion = document.getElementById('suggestion');
 
 const questions = [
     {
-        question: "O que você prefere fazer no seu tempo livre?",
+        question: "Você prefere atividades em grupo ou sozinho?",
+        id: "social",
         answers: {
-            a: "Relaxar em casa",
-            b: "Sair e explorar",
-            c: "Criar algo com as mãos"
+            grupo: "Em grupo",
+            sozinho: "Sozinho"
         }
     },
     {
-        question: "Qual ambiente você mais gosta?",
+        question: "Você gosta de estar em contato com a natureza?",
+        id: "natureza",
         answers: {
-            a: "Um lugar tranquilo e silencioso",
-            b: "A natureza e o ar livre",
-            c: "Uma oficina ou estúdio"
+            sim: "Sim",
+            nao: "Não"
+        }
+    },
+    {
+        question: "Você prefere atividades que exigem esforço físico?",
+        id: "fisico",
+        answers: {
+            sim: "Sim",
+            nao: "Não"
+        }
+    },
+    {
+        question: "Você gosta de atividades que estimulam a mente?",
+        id: "mental",
+        answers: {
+            sim: "Sim",
+            nao: "Não"
         }
     }
 ];
@@ -28,7 +44,7 @@ function buildQuestionnaire() {
         for (const key in q.answers) {
             const label = document.createElement('label');
             label.innerHTML = `
-                <input type="radio" name="question${index}" value="${key}">
+                <input type="radio" name="${q.id}" value="${key}">
                 ${q.answers[key]}
             `;
             questionDiv.appendChild(label);
@@ -39,27 +55,86 @@ function buildQuestionnaire() {
 
 buildQuestionnaire();
 
+function prepareData() {
+    const data = hobbies.map(hobby => {
+        return [
+            hobby.social === 'grupo' ? 1 : 0,
+            hobby.natureza === 'sim' ? 1 : 0,
+            hobby.fisico === 'sim' ? 1 : 0,
+            hobby.mental === 'sim' ? 1 : 0
+        ];
+    });
+    const labels = hobbies.map(hobby => hobby.hobby);
+    return { data, labels };
+}
+
+const { data, labels } = prepareData();
+const knn = new KNN(data, labels, { k: 1 });
+
+let userProfile = {
+    username: 'Usuário',
+    suggestedHobbies: [],
+    lastLogin: null,
+    loginDays: 0
+};
+
+function loadProfile() {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+        userProfile = JSON.parse(savedProfile);
+    }
+}
+
+function saveProfile() {
+    localStorage.setItem('userProfile', JSON.stringify(userProfile));
+}
+
 submitBtn.addEventListener('click', () => {
-    const answers = {
-        a: 0,
-        b: 0,
-        c: 0
-    };
     const inputs = questionnaire.querySelectorAll('input:checked');
-    inputs.forEach(input => {
-        answers[input.value]++;
+    const userAnswers = Array.from(inputs).map(input => {
+        return input.value === 'sim' || input.value === 'grupo' ? 1 : 0;
     });
 
-    let suggestedHobby = '';
-    if (answers.a > answers.b && answers.a > answers.c) {
-        suggestedHobby = "Que tal ler um livro ou assistir a um filme?";
-    } else if (answers.b > answers.a && answers.b > answers.c) {
-        suggestedHobby = "Você pode gostar de fazer uma trilha ou um piquenique.";
-    } else if (answers.c > answers.a && answers.c > answers.b) {
-        suggestedHobby = "Aprender a desenhar ou fazer artesanato pode ser uma boa.";
-    } else {
-        suggestedHobby = "Você é versátil! Que tal tentar um de cada?";
-    }
+    const prediction = knn.predict(userAnswers);
+    suggestion.innerHTML = `<h2>Sugestão:</h2><p>${prediction}</p>`;
 
-    suggestion.innerHTML = `<h2>Sugestão:</h2><p>${suggestedHobby}</p>`;
+    if (!userProfile.suggestedHobbies.includes(prediction)) {
+        userProfile.suggestedHobbies.push(prediction);
+        saveProfile();
+    }
 });
+
+function updateProfileDisplay() {
+    document.getElementById('username').textContent = userProfile.username;
+    document.getElementById('level').textContent = getLevel(userProfile.loginDays);
+    const hobbyList = document.getElementById('hobby-list');
+    hobbyList.innerHTML = '';
+    userProfile.suggestedHobbies.forEach(hobby => {
+        const li = document.createElement('li');
+        li.textContent = hobby;
+        hobbyList.appendChild(li);
+    });
+}
+
+function getLevel(loginDays) {
+    if (loginDays <= 5) {
+        return 'Iniciante';
+    } else if (loginDays <= 15) {
+        return 'Entusiasta';
+    } else {
+        return 'Mestre dos Hobbies';
+    }
+}
+
+function handleLogin() {
+    const today = new Date().toDateString();
+    if (userProfile.lastLogin !== today) {
+        userProfile.loginDays++;
+        userProfile.lastLogin = today;
+        saveProfile();
+    }
+}
+
+loadProfile();
+handleLogin();
+updateProfileDisplay();
